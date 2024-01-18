@@ -1,6 +1,6 @@
 import env from "react-dotenv";
 import axios from "axios";
-import {UrlPair} from "../types";
+import {PaginatedUrlPairsResult, UrlPair} from "../types";
 import {Signal, signal} from "@preact/signals-core";
 
 class UrlPairService {
@@ -14,8 +14,8 @@ class UrlPairService {
         return await axios.post<string>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}/shortUrl`, { longUrl }, { headers: { "Content-Type": "application/json" } })/*.then((res) => res.data.shortUrl).catch((err) => console.log(err))*/;
     }
 
-    public async get10MostRecentUrlPairs() {
-        return await axios.get<Array<UrlPair>>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}`);
+    public async get10MostRecentUrlPairsPaginated(page: number) {
+        return await axios.get<PaginatedUrlPairsResult>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}?page=${page}&limit=3`);
     }
 }
 

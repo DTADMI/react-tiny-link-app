@@ -4,180 +4,97 @@ import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import URL_PAIR_SERVICE from "./services/UrlPairService";
 import {UrlPair} from "./types";
-import {computed} from "@preact/signals-react";
+import {computed} from "@preact/signals-core";
 
 
 export const UrlPairsTable = () => {
   //let data: Signal<UrlPair[]> = signal<UrlPair[]>([]);
   const [data, setData] = React.useState<UrlPair[]>([]);
+  const shouldUpdateComputed = computed(() => {
+    return URL_PAIR_SERVICE.shouldUpdateDataSig.value;
+  })
+  const [filterInput, setFilterInput] = React.useState<string>("");
+  const [page, setPage] = React.useState<number>(1);
+  const [pageCount, setPageCount] = React.useState<number>(0);
   React.useEffect(() => {
     const getUrlsPairs = async () => {
-        let res = await URL_PAIR_SERVICE.get10MostRecentUrlPairs();
-        URL_PAIR_SERVICE.data.value = res.data;
-        setData(res.data);
+        let res = await URL_PAIR_SERVICE.get10MostRecentUrlPairsPaginated(page);
+        URL_PAIR_SERVICE.data.value = res.data.data;
+        setPageCount(res.data._metadata.page_count);
+        setData(res.data.data);
         URL_PAIR_SERVICE.shouldUpdateDataSig.value = false;
     };
     if(URL_PAIR_SERVICE.shouldUpdateDataSig.value){
       getUrlsPairs();
     }
-  }, []);
-  const columns: ColumnDef<UrlPair>[] = [
-    {
-      id: "longUrl",
-      cell: ({row}) => <div className="lowercase">{row.getValue("longUrl")}</div>,
-    },
-    {
-      id: "shortUrl",
-      cell: ({row}) => <div className="lowercase">{row.getValue("shortUrl")}</div>,
-    }
-  ];
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-      []
-  );
-  const [columnVisibility, setColumnVisibility] =
-      React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  }, [page, shouldUpdateComputed.value]);
 
-  /*const tableComputed = computed(()=> {
-    return useReactTable({
-      data: URL_PAIR_SERVICE.data.value,
-      columns,
-      onSortingChange: setSorting,
-      onColumnFiltersChange: setColumnFilters,
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      onColumnVisibilityChange: setColumnVisibility,
-      onRowSelectionChange: setRowSelection,
-      state: {
-        sorting,
-        columnFilters,
-        columnVisibility,
-        rowSelection,
-      },
-    });
-  })*/
+  const getPreviousPage = (event: React.FormEvent) => {
+      event.preventDefault();
+      setPage(Math.max(1, page - 1));
+      URL_PAIR_SERVICE.shouldUpdateDataSig.value = true;
+  }
 
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
+  const getNextPage = (event: React.FormEvent) => {
+      event.preventDefault();
+      setPage(Math.min(pageCount, page + 1));
+      URL_PAIR_SERVICE.shouldUpdateDataSig.value = true;
+  }
 
   return (
       <div className="w-full">
         <div className="flex items-center py-4">
           <Input
               placeholder="Filter long url..."
-              value={(table.getColumn("longUrl")?.getFilterValue() as string) ?? ""}
+              value={filterInput}
               onChange={(event) =>
-                  table.getColumn("longUrl")?.setFilterValue(event.target.value)
+                  {
+                    setFilterInput(event.target.value);
+                  }
               }
               className="max-w-sm"
           />
         </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                )}
-                          </TableHead>
-                      )
-                    })}
-                  </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                      <TableRow
-                          key={row.id}
-                          data-state={"selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
-                              )}
-                            </TableCell>
-                        ))}
-                      </TableRow>
-                  ))
-              ) : (
-                  <TableRow>
-                    <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
-              )}
-            </TableBody>
-          </Table>
+        <div className="mt-8 space-y-4">
+            {data?.length ? (
+                data.map((urlPair: UrlPair) => (
+                    <div key={urlPair.id} className="flex justify-between items-center border-b-2 border-gray-200 pb-2">
+                        <textarea
+                            className="text-sm text-gray-700 dark:text-gray-200 w-full overflow-x-auto"
+                            readOnly
+                            value={urlPair.longUrl}
+                        />
+                        <Input
+                            className="text-sm text-indigo-500 dark:text-indigo-400 w-full overflow-x-auto"
+                            readOnly
+                            type="text"
+                            value={urlPair.shortUrl}
+                        />
+                    </div>
+                ))
+            ) : (
+                <div className="flex justify-between items-center border-b-2 border-gray-200 pb-2">
+                  No results.
+                </div>
+            )}
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="space-x-2">
             <Button
-                variant="outline"
+                className="text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
                 size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={(event) => getPreviousPage(event)}
+                disabled={page === 1}
             >
               Previous
             </Button>
             <Button
-                variant="outline"
+                className="text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
                 size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={(event) => getNextPage(event)}
+                disabled={page === pageCount}
             >
               Next
             </Button>
