@@ -10,12 +10,10 @@ import {computed} from "@preact/signals-core";
 
 
 export const UrlPairsTable = () => {
-  //let data: Signal<UrlPair[]> = signal<UrlPair[]>([]);
   const [data, setData] = React.useState<UrlPair[]>([]);
   const shouldUpdateComputed = computed(() => {
     return URL_PAIR_SERVICE.shouldUpdateDataSig.value;
   })
-  const [filterInput, setFilterInput] = React.useState<string>("");
   const [page, setPage] = React.useState<number>(1);
   const [pageCount, setPageCount] = React.useState<number>(0);
   React.useEffect(() => {
@@ -45,18 +43,6 @@ export const UrlPairsTable = () => {
 
   return (
       <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
-              placeholder="Filter long url..."
-              value={filterInput}
-              onChange={(event) =>
-                  {
-                    setFilterInput(event.target.value);
-                  }
-              }
-              className="max-w-sm"
-          />
-        </div>
         <div className="mt-8 space-y-4">
             {data?.length ? (
                 data.map((urlPair: UrlPair) => (
@@ -80,8 +66,7 @@ export const UrlPairsTable = () => {
                 </div>
             )}
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="space-x-2">
+        <div className="mt-8 flex justify-between">
             <Button
                 className="text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
                 size="sm"
@@ -98,7 +83,6 @@ export const UrlPairsTable = () => {
             >
               Next
             </Button>
-          </div>
         </div>
       </div>
   );
@@ -132,9 +116,7 @@ function App() {
                   value={longUrlInput}
                   onChange={(event) => {
                     setLongUrlInput(event.target.value);
-                    if(!longUrlInput.length){
-                      setShortUrlOutput("");
-                    }
+                    setShortUrlOutput("");
                   }}
                   placeholder="Enter your URL here"
                   required
@@ -166,7 +148,7 @@ function App() {
         <div
             className="w-full lg:w-1/2 max-w-md px-8 py-6 mt-8 lg:mt-0 bg-white shadow-md rounded-lg dark:bg-gray-800 overflow-y-auto h-[50vh]">
           <h2 className="text-2xl font-semibold text-center text-gray-700 dark:text-white">Previous Conversions</h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">Your past URL conversions</p>
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">The 10 most recent converted URLs</p>
           <UrlPairsTable/>
         </div>
       </main>
