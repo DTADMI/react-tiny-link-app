@@ -1,3 +1,6 @@
+# react-tiny-link-app
+A React frontend for the tiny link Spring API project. It allows users to transform long url into short ones
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
