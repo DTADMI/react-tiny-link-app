@@ -53,6 +53,10 @@ The port and API url are configurable in the .env file. A .env.example file is p
 
 We decided not to do TDD on this application, as it might have taken more time than that allocated. Hence, the tests also went into the "maybe later" list.
 
+### Deployment
+
+We decided not to deploy this application, as to have the best performance, the backend would require a kubernetes cluster or something similar, and that would be more costly than the budget for this application.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
