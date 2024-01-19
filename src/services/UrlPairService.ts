@@ -11,11 +11,15 @@ class UrlPairService {
 
 
     public async convertToTinyUrl(longUrl: string) {
-        return await axios.post<string>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}/shortUrl`, { longUrl }, { headers: { "Content-Type": "application/json" } })/*.then((res) => res.data.shortUrl).catch((err) => console.log(err))*/;
+        return await axios.post<string>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}/shortUrl`, { longUrl }, { headers: { "Content-Type": "application/json" } });
     }
 
-    public async get10MostRecentUrlPairsPaginated(page: number) {
-        return await axios.get<PaginatedUrlPairsResult>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}?page=${page}&limit=3`);
+    public async convertToLongUrl(shortUrl: string) {
+        return await axios.post<string>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}/longUrl`, { shortUrl }, { headers: { "Content-Type": "application/json" } });
+    }
+
+    public async getMostRecentUrlPairsPaginated(page: number) {
+        return await axios.get<PaginatedUrlPairsResult>(`${env.REACT_TINY_LINK_API_URL}${this.API_PATH}?page=${page}`);
     }
 }
 
