@@ -28,9 +28,16 @@ export const UrlPairsTable = () => {
             URL_PAIR_SERVICE.shouldUpdateDataSig.value = false;
         } catch (e) {
             console.error(e);
+            let message = "There was a problem with your request.";
+            const err = e! as Record<string, unknown>;
+            console.table(err);
+            if(Object.hasOwn(err, "message")){
+                message = err["message"] as string;
+            }
+            console.error(message);
             toast({
                 title: "Uh oh! Something went wrong.😓",
-                description: "There was a problem with your request.",
+                description: message,
                 variant: "destructive",
             })
         }
@@ -118,12 +125,22 @@ const { toast } = useToast();
       setUrlOutput(convertedUrl);
       URL_PAIR_SERVICE.shouldUpdateDataSig.value = true;
     } catch (e) {
-      console.error(e);
-      toast({
-          title: "Uh oh! Something went wrong.😓",
-          description: "There was a problem with your request.",
-          variant: "destructive",
-      })
+        console.error(e);
+        let message = "There was a problem with your request.";
+        const err = e! as Record<string, unknown>;
+        console.table(err);
+        if(Object.hasOwn(err, "response")){
+            const response = err["response"] as Record<string, unknown>;
+            if(Object.hasOwn(response, "data")){
+                message = response["data"] as string;
+            }
+        }
+        console.error(message);
+        toast({
+            title: "Uh oh! Something went wrong.😓",
+            description: message,
+            variant: "destructive",
+        })
     }
   };
 
@@ -169,7 +186,7 @@ const { toast } = useToast();
                 </div>
                 <div className="flex space-x-4 mt-6 mb-5">
                     <Button
-                        className="w-full text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
+                        className="w-full text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-md px-4 py-2"
                         type="button"
                         onClick={(event) => {
                             event.preventDefault();
