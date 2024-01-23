@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Suspense} from 'react';
 import './App.css';
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
@@ -153,84 +153,86 @@ const { toast } = useToast();
         }
     }
   return (
-      <main
-          className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 gap-8">
-        <div className="w-full lg:w-1/2 max-w-md px-8 py-6 bg-white shadow-md rounded-lg dark:bg-gray-800">
-          <h2 className="text-2xl font-semibold text-center text-gray-700 dark:text-white">Tiny URL Converter</h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mt-2">Convert your URLs from long to short or short to long</p>
-            <form className="mt-8">
-                <div className="flex flex-col space-y-2">
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="urlInput">
-                        URL to convert
-                    </Label>
-                    <Input
-                        className="px-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        id="urlInput"
-                        name="urlInput"
-                        value={urlInput}
-                        onChange={(event) => {
-                            setUrlInput(event.target.value);
-                            setUrlInputIsValid(event.target.value.length===0 || isValidURL(event.target.value));
-                        }}
-                        placeholder="Enter your URL to convert here"
-                        required
-                        type="url"
-                    />
-                    {!urlInputIsValid ?
-                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                            <div>Url is invalid.</div>
-                        </p>
-                        :
-                        null
-                    }
-                </div>
-                <div className="flex space-x-4 mt-6 mb-5">
-                    <Button
-                        className="w-full text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-md px-4 py-2"
-                        type="button"
-                        onClick={(event) => {
-                            event.preventDefault();
-                            convertUrl(true);
-                        }}
-                        disabled={urlInput.length === 0 || !isValidURL(urlInput)}
-                    >
-                        Convert to Short
-                    </Button>
-                    <Button
-                        className="w-full text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
-                        type="button"
-                        onClick={(event) => {
-                            event.preventDefault();
-                            convertUrl(false);
-                        }}
-                        disabled={urlInput.length === 0 || !isValidURL(urlInput)}
-                    >
-                        Convert to Long
-                    </Button>
-                </div>
-                <div className="flex flex-col space-y-2">
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="urlOutput">
-                        Converted URL
-                    </Label>
-                    <Input
-                        className="px-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        id="urlOutput"
-                        name="urlOutput"
-                        value={urlOutput}
-                        placeholder="Your converted URLl will appear here"
-                        readOnly
-                        type="url"
-                    />
-                </div>
-            </form>
-        </div>
-          <div
-              className="w-full lg:w-1/2 max-w-md px-8 py-6 mt-8 lg:mt-0 bg-white shadow-md rounded-lg dark:bg-gray-800 overflow-y-auto h-[50vh]">
-              <h2 className="text-2xl font-semibold text-center text-gray-700 dark:text-white">Previous Conversions</h2>
-              <p className="text-center text-gray-500 dark:text-gray-400 mt-2">The most recently converted URLs</p>
-              <UrlPairsTable/>
-          </div>
-      </main>
+      <Suspense fallback={<span className="loader"></span>}>
+          <main
+              className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 gap-8">
+            <div className="w-full lg:w-1/2 max-w-md px-8 py-6 bg-white shadow-md rounded-lg dark:bg-gray-800">
+              <h2 className="text-2xl font-semibold text-center text-gray-700 dark:text-white">Tiny URL Converter</h2>
+              <p className="text-center text-gray-500 dark:text-gray-400 mt-2">Convert your URLs from long to short or short to long</p>
+                <form className="mt-8">
+                    <div className="flex flex-col space-y-2">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="urlInput">
+                            URL to convert
+                        </Label>
+                        <Input
+                            className="px-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            id="urlInput"
+                            name="urlInput"
+                            value={urlInput}
+                            onChange={(event) => {
+                                setUrlInput(event.target.value);
+                                setUrlInputIsValid(event.target.value.length===0 || isValidURL(event.target.value));
+                            }}
+                            placeholder="Enter your URL to convert here"
+                            required
+                            type="url"
+                        />
+                        {!urlInputIsValid ?
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                                <div>Url is invalid.</div>
+                            </p>
+                            :
+                            null
+                        }
+                    </div>
+                    <div className="flex space-x-4 mt-6 mb-5">
+                        <Button
+                            className="w-full text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 rounded-md px-4 py-2"
+                            type="button"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                convertUrl(true);
+                            }}
+                            disabled={urlInput.length === 0 || !isValidURL(urlInput)}
+                        >
+                            Convert to Short
+                        </Button>
+                        <Button
+                            className="w-full text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-md px-4 py-2"
+                            type="button"
+                            onClick={(event) => {
+                                event.preventDefault();
+                                convertUrl(false);
+                            }}
+                            disabled={urlInput.length === 0 || !isValidURL(urlInput)}
+                        >
+                            Convert to Long
+                        </Button>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="urlOutput">
+                            Converted URL
+                        </Label>
+                        <Input
+                            className="px-3 py-2 text-sm w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            id="urlOutput"
+                            name="urlOutput"
+                            value={urlOutput}
+                            placeholder="Your converted URLl will appear here"
+                            readOnly
+                            type="url"
+                        />
+                    </div>
+                </form>
+            </div>
+              <div
+                  className="w-full lg:w-1/2 max-w-md px-8 py-6 mt-8 lg:mt-0 bg-white shadow-md rounded-lg dark:bg-gray-800 overflow-y-auto h-[50vh]">
+                  <h2 className="text-2xl font-semibold text-center text-gray-700 dark:text-white">Previous Conversions</h2>
+                  <p className="text-center text-gray-500 dark:text-gray-400 mt-2">The most recently converted URLs</p>
+                  <UrlPairsTable/>
+              </div>
+          </main>
+      </Suspense>
   );
 }
 
